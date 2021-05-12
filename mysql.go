@@ -1,23 +1,23 @@
 package main
 
 import (
-    "errors"
-    "os"
-    "database/sql"
-    "fmt"
-    _ "github.com/go-sql-driver/mysql"
-    xerrors "github.com/pkg/errors"
+	"database/sql"
+	"errors"
+	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	xerrors "github.com/pkg/errors"
+	"os"
 )
 
 var errSQL = errors.New("SQL")
 
 func main() {
 	db, err := sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/book_manager?charset=utf8")
-    if err!=nil {
-        fmt.Print(`err`)
-        fmt.Println(err)
-        return
-    }
+	if err != nil {
+		fmt.Print(`err`)
+		fmt.Println(err)
+		return
+	}
 	fmt.Println(db)
 	err = showTable(db)
 	if err != nil {
@@ -31,30 +31,31 @@ func main() {
 func showTable(db *sql.DB) error {
 	//表结构
 	type info struct {
-		id int `db:"id"`
-		name string `db:"name"`
-		author string `db:"author"`
-		status string `db:"status"`
-		create_time string `db:"create_time"`
-	}   
-	sqlString := "SELECT * FROM book22"	
-	rows,err:=db.Query(sqlString)
+		Id         int    `db:"id"`
+		Name       string `db:"name"`
+		Author     string `db:"author"`
+		Status     string `db:"status"`
+		CreateTime string `db:"create_time"`
+	}
+	sqlString := "SELECT * FROM book"
+	rows, err := db.Query(sqlString)
 	if err != nil {
-		fmt.Println("sql:"+sqlString)
-		return xerrors.Wrap(errSQL, "sql:"+sqlString);
+		fmt.Println("sql:" + sqlString)
+		return xerrors.Wrap(errSQL, "sql:"+sqlString)
 	}
 
-	for rows.Next(){
+	for rows.Next() {
 		var s info
-		err = rows.Scan(&s.id,&s.name,&s.author,&s.status,&s.create_time)
+		err = rows.Scan(&s.Id, &s.Name, &s.Author, &s.Status, &s.CreateTime)
 		if err != nil {
-			break;
+			break
 		}
 		fmt.Println(s)
 	}
 	//用完关闭
-	rows.Close() 
+	err = rows.Close()
+	if err != nil {
+		return err
+	}
 	return nil
 }
-
-
